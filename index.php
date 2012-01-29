@@ -1,9 +1,9 @@
 <?php
 
 	$possible_lang = array (
-		'English',
-		'French',
-		'Spanish'
+		'eng' => 'English',
+		'fre' => 'French',
+		'spa' => 'Spanish'
 	);
 	
 	$errors = array();
@@ -25,7 +25,7 @@
 			$errors['email'] = true;	
 		}
 		
-		if (mb_strlen($username) < 25) {
+		if (mb_strlen($username) > 25) {
 			$errors['username'] = true;		
 		}
 		
@@ -33,13 +33,18 @@
 			$errors['password'] = true ;	
 		}
 		
-		if (!in_array($lang, $possible_lang)) {
+		if (!array_key_exists($lang, $possible_lang)) {
 			$errors['lang'] = true;	
 		}
 		
+		if ($terms == 'unchecked') {
+			$errors['terms'] = true;	
+		}
 		
 		
 	}
+	
+	$thanks = "Thank you for using our mail form";
 
 ?><!DOCTYPE HTML>
 <html>
@@ -51,33 +56,53 @@
 
 <body>
 	
+<h3><?php
+if (isset($_REQUEST['email'])){ //if "email" is filled out, send email {
+	$email = $_REQUEST['email'];
+	$name = $_REQUEST['name'];
+	$username = $_REQUEST['username'];
+	$password = $_REQUEST['password'];
+	$notes = $_REQUEST['notes'];
+	$from = "Petrus";
+	$headers = "From:" . $from;
+	mail($email,$name,$notes,$username,$password,$lang,$headers);
+  	echo $thanks;
+  
+  }
+?></h3>
+
+
+
+	
 	<form method="post" action="index.php">
 		<div>
 			<label for="name">Name</label>
-			<input type="name" id="name" name="name" required><?php if (isset($errors['name'])) : ?> <strong>is required</strong><?php endif; ?>
+			<input type="name" id="name" name="name" value="<?php echo $name; ?>" required><?php if (isset($errors['name'])) : ?> <strong>is required</strong><?php endif; ?>
 		</div>
 		<div>
 			<label for="email">Email</label>
-			<input type="email" id="email" name="email" required><?php if (isset($errors['email'])) : ?> <strong>enter a valid email address</strong><?php endif; ?>
+			<input type="email" id="email" name="email" value="<?php echo $email; ?>" required><?php if (isset($errors['email'])) : ?> <strong>enter a valid email address</strong><?php endif; ?>
 		</div>
 		<div>
 			<label for="username">Username</label>
-			<input type="text" id="username" name="username"required><?php if (isset($errors['username'])) : ?> <strong>less than 25 characters</strong><?php endif; ?>
+			<input type="text" id="username" name="username" value="<?php echo $username; ?>" required><?php if (isset($errors['username'])) : ?> <strong>less than 25 characters</strong><?php endif; ?>
 		</div>
 		<div>
 			<label for="password">Password</label>
-			<input type="password" id="password" name="password" required><?php if (isset($errors['password'])) : ?> <strong>please enter a password</strong><?php endif; ?>
+			<input type="password" id="password" name="password" value="<?php echo $password; ?>" required><?php if (isset($errors['password'])) : ?> <strong>please enter a password</strong><?php endif; ?>
 		</div>
 		<div>
 			<fieldset>
 				<legend>Preferred Language</legend><?php if (isset($errors['lang'])) : ?> <strong>choose a language</strong><?php endif; ?>
-				<input type="radio" id="lang" name="lang" required>
-				<label for="lang"></label>
+			<?php foreach($possible_lang as $key => $value) : ?>
+				<input type="radio" id="<?php echo $key; ?>" name="lang" value="<?php echo $key; ?>"<?php if ($key == $lang) { echo ' checked'; } ?> required>
+				<label for="<?php echo $key; ?>"><?php echo $value; ?></label>
+			<?php endforeach; ?>
 			</fieldset>
 		</div>
 		<div>
 			<label for="notes">Notes</label>
-			<textarea id="notes" name="notes"></textarea>
+			<textarea id="notes" name="notes"><?php echo $notes; ?></textarea>
 		</div>
 		<div>
 			<fieldset>
@@ -86,20 +111,9 @@
 			</fieldset>
 		</div>
 		<div>
-			<button type="submit">Send Message</button>
+			<button type="submit" name="submit">Send Message</button>
 		</div>
 	</form>
-
-
-@name 	@type 	required 	notes
-name 	text 	• 	
-email 	email 	• 	valid e-mail address
-username 	text 	• 	max length 25 characters
-password 	password 	• 	
-
-notes 	textarea 		
-acceptterms 	checkbox 	• 
-
 
 </body>
 </html>
