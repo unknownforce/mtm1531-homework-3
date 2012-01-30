@@ -44,8 +44,7 @@
 		
 	}
 	
-	$thanks = "Thank you for using our mail form";
-
+	
 ?><!DOCTYPE HTML>
 <html>
 <head>
@@ -56,8 +55,8 @@
 
 <body>
 	
-<h3><?php
-if (isset($_REQUEST['email'])){ //if "email" is filled out, send email {
+<?php
+if (isset($_REQUEST['email'])) ://if "email" is filled out, send email {
 	$email = $_REQUEST['email'];
 	$name = $_REQUEST['name'];
 	$username = $_REQUEST['username'];
@@ -66,15 +65,16 @@ if (isset($_REQUEST['email'])){ //if "email" is filled out, send email {
 	$from = "Petrus";
 	$headers = "From:" . $from;
 	mail($email,$name,$notes,$username,$password,$lang,$headers);
-  	echo $thanks;
   
-  }
-?></h3>
-
+  
+  
+?>	<h3>Thank you for using our mail form</h3><?php endif; ?>
 
 
 	
+	
 	<form method="post" action="index.php">
+		<h1>Email Form</h1>
 		<div>
 			<label for="name">Name</label>
 			<input type="name" id="name" name="name" value="<?php echo $name; ?>" required><?php if (isset($errors['name'])) : ?> <strong>is required</strong><?php endif; ?>
