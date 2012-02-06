@@ -7,14 +7,15 @@
 	);
 	
 	$errors = array();
+	$display_thanks = false;
 	
 	$name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
 	$email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
 	$username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_SPECIAL_CHARS);
-	$password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
+	$password = filter_input(INPUT_POST, 'password', FILTER_UNSAFE_RAW);
 	$notes = filter_input(INPUT_POST, 'notes', FILTER_SANITIZE_STRING);
 	$lang = filter_input(INPUT_POST, 'lang', FILTER_SANITIZE_STRING);
-	$terms = filter_input(INPUT_POST, 'terms', FILTER_SANITIZE_STRING);
+	$terms = filter_input(INPUT_POST, 'terms', FILTER_DEFAULT);
 	
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if (empty($name)) {
@@ -37,10 +38,22 @@
 			$errors['lang'] = true;	
 		}
 		
-		if ($terms == 'unchecked') {
-			$errors['terms'] = true;	
+		if (empty($terms)) {
+			$errors['terms'] = true;
 		}
 		
+		if (empty($errors)) {
+			$display_thanks = true;	
+			
+			$email_message = 'Name: ' . $name . "\r\n";
+			$email_message .= 'Email ' . $email . "\r\n";
+			$email_message .= "Message:\r\n" . $message;
+			
+			$headers = 'From: ' . $name . ' <' . $email . '>' . "\r\n";
+					
+			
+			mail($email, $username, $email_message);
+		}
 		
 	}
 	
@@ -55,24 +68,9 @@
 
 <body>
 	
-<?php
-if (isset($_REQUEST['email'])) ://if "email" is filled out, send email {
-	$email = $_REQUEST['email'];
-	$name = $_REQUEST['name'];
-	$username = $_REQUEST['username'];
-	$password = $_REQUEST['password'];
-	$notes = $_REQUEST['notes'];
-	$from = "Petrus";
-	$headers = "From:" . $from;
-	mail($email,$name,$notes,$username,$password,$lang,$headers);
-  
-  
-  
-?>	<h3>Thank you for using our mail form</h3><?php endif; ?>
-
-
-	
-	
+<?php if ($display_thanks) : ?>
+	<strong>Thank you for using our mail form</strong>
+<?php else : ?>
 	<form method="post" action="index.php">
 		<h1>Email Form</h1>
 		<div>
@@ -114,6 +112,8 @@ if (isset($_REQUEST['email'])) ://if "email" is filled out, send email {
 			<button type="submit" name="submit">Send Message</button>
 		</div>
 	</form>
+	
+<?php endif; ?>
 
 </body>
 </html>
